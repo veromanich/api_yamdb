@@ -68,13 +68,12 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(verbose_name='Категория',
-                            max_length=200,
-                            blank=False,
-                            null=False)
-    slug = models.SlugField(verbose_name='Идентификатор',
-                            unique=True,
-                            max_length=50)
+    name = models.CharField(
+        verbose_name='Категория', max_length=200, blank=False, null=False
+    )
+    slug = models.SlugField(
+        verbose_name='Идентификатор', unique=True, max_length=50
+    )
 
     class Meta:
         verbose_name = 'категория'
@@ -86,13 +85,12 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(verbose_name='Жанр',
-                            max_length=256,
-                            blank=False,
-                            null=False)
-    slug = models.SlugField(verbose_name='Идентификатор',
-                            unique=True,
-                            max_length=256)
+    name = models.CharField(
+        verbose_name='Жанр', max_length=256, blank=False, null=False
+    )
+    slug = models.SlugField(
+        verbose_name='Идентификатор', unique=True, max_length=256
+    )
 
     class Meta:
         verbose_name = 'жанр'
@@ -111,8 +109,12 @@ class Titles(models.Model):
         null=False,
     )
     year = models.IntegerField()
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL,
-                                 null=True, verbose_name='Категория')
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Категория',
+    )
 
     class Meta:
         verbose_name = 'произведение'
