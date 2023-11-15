@@ -48,7 +48,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
-        ordering = ['-id']
+        ordering = ['id']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
@@ -66,6 +66,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
+        ordering = ['id']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
@@ -80,12 +81,19 @@ class Titles(models.Model):
         null=False,
     )
     year = models.IntegerField()
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL,
-                                 null=True, verbose_name='Категория')
+    category = models.ForeignKey(Category,
+                                 on_delete=models.SET_NULL,
+                                 null=True,
+                                 verbose_name='Категория',
+                                 related_name='titles')
+    genre = models.ManyToManyField(Genre,
+                                   through='GenreTitle',
+                                   related_name='titles')
 
     class Meta:
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
+        ordering = ['-id']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]

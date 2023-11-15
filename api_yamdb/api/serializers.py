@@ -18,10 +18,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Genre
-        fields = '__all__'
-        read_only_fields = ('slug',)
+        fields = ('name', 'slug')
         lookup_field = 'slug'
 
 
