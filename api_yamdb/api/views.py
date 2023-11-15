@@ -5,16 +5,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serializers import (CategorySerializer,
-                             GenreSerializer,
-                             SignupSerializer,
-                             TitlesSerializer,
-                             UserSerializer)
+from api.serializers import (
+    CategorySerializer,
+    GenreSerializer,
+    SignupSerializer,
+    TitlesSerializer,
+    UserSerializer,
+)
 from api.permissions import ReadOnly
-from reviwes.models import (Category,
-                            Genre,
-                            Titles,
-                            User)
+from reviwes.models import Category, Genre, Titles, User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -45,10 +44,12 @@ class GetToken(APIView):
     pass
 
 
-class CategoryViewSet(mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      mixins.CreateModelMixin,
-                      viewsets.GenericViewSet):
+class CategoryViewSet(
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     # permission_classes = (ReadOnly,)
