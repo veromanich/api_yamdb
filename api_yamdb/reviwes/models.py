@@ -41,11 +41,14 @@ class Category(models.Model):
                             max_length=200,
                             blank=False,
                             null=False)
-    slug = models.SlugField(verbose_name='Идентификатор', unique=True)
+    slug = models.SlugField(verbose_name='Идентификатор',
+                            unique=True,
+                            max_length=50)
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
+        ordering = ['-id']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
@@ -53,10 +56,12 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(verbose_name='Жанр',
-                            max_length=200,
+                            max_length=256,
                             blank=False,
                             null=False)
-    slug = models.SlugField(verbose_name='Идентификатор', unique=True)
+    slug = models.SlugField(verbose_name='Идентификатор',
+                            unique=True,
+                            max_length=256)
 
     class Meta:
         verbose_name = 'жанр'
@@ -69,7 +74,7 @@ class Genre(models.Model):
 class Titles(models.Model):
     name = models.CharField(
         verbose_name='Произведение',
-        max_length=200,
+        max_length=256,
         unique=True,
         blank=False,
         null=False,
