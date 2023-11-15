@@ -1,11 +1,20 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from rest_framework import permissions, status, viewsets
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serializers import SignupSerializer, UserSerializer
-from reviwes.models import User
+from api.serializers import (CategorySerializer,
+                             GenreSerializer,
+                             SignupSerializer,
+                             TitlesSerializer,
+                             UserSerializer)
+from api.permissions import ReadOnly
+from reviwes.models import (Category,
+                            Genre,
+                            Titles,
+                            User)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -34,3 +43,27 @@ class APISignup(APIView):
 
 class GetToken(APIView):
     pass
+
+
+class CategoryViewSet(mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    # permission_classes = (ReadOnly,)
+    # permission_classes = [ReadOnly or permissions.IsAdminUser]
+    pagination_class = PageNumberPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlesSerializer
