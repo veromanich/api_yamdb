@@ -89,6 +89,7 @@ class Titles(models.Model):
     genre = models.ManyToManyField(Genre,
                                    through='GenreTitle',
                                    related_name='titles')
+    description = models.TextField()
 
     class Meta:
         verbose_name = 'произведение'
