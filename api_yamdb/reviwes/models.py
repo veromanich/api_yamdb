@@ -26,11 +26,7 @@ class User(AbstractUser):
         validators=[validate_username],
     )
     email = models.EmailField(
-        'Электронная почта',
-        max_length=254,
-        unique=True,
-        blank=False,
-        null=False,
+        'Электронная почта', max_length=254, unique=True, null=True
     )
     first_name = models.CharField('Имя', max_length=150, blank=True)
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
@@ -47,7 +43,8 @@ class User(AbstractUser):
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
-        max_length=255,
+        max_length=40,
+        blank=False,
         null=True,
     )
 
