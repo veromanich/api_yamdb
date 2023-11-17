@@ -16,7 +16,11 @@ from api.serializers import (
     TitlesSerializer,
     UserSerializer,
 )
-from api.permissions import ReadOnly
+from api.permissions import (
+    IsAdminModeratorOwnerOrReadOnly,
+    IsAdminOnly,
+    IsAdminOrReadOnly,
+)
 from reviwes.models import Category, Genre, Titles, User
 
 
