@@ -19,6 +19,8 @@ from api.serializers import (
 from api.permissions import ReadOnly
 from reviwes.models import Category, Genre, Titles, User
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -91,8 +93,16 @@ class CategoryViewSet(
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    search_fields = ('name',)
+    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
