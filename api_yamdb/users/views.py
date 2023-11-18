@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from users.serializers import (
     GetTokenSerializer,
+    ProfileSerializer,
     SignupSerializer,
     UserSerializer,
 )
@@ -60,8 +61,21 @@ class APIGetToken(APIView):
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        confirmation_code = serializer.validated_data['confirmation_code']
+        validated_data = serializer.validated_data
+        username = validated_data.get('username', None)
+        confirmation_code = validated_data.get('confirmation_code', None)
+        # username = serializer.validated_data['username']
+        # confirmation_code = serializer.validated_data['confirmation_code']
+        if not username:
+            return Response(
+                {'username': 'Поле не задано'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not confirmation_code:
+            return Response(
+                {'confirmation_code': 'Поле не задано'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         user = get_object_or_404(User, username=username)
         if user.confirmation_code == confirmation_code:
             token = str(AccessToken.for_user(user))
@@ -70,3 +84,12 @@ class APIGetToken(APIView):
             {'confirmation_code': 'Неверный код подтверждения'},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class APIProfile(APIView):
+    
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass

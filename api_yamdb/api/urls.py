@@ -8,6 +8,7 @@ from api.views import (
 )
 from users.views import (
     APIGetToken,
+    APIProfile,
     APISignup,
     UserViewSet,
 )
@@ -20,6 +21,7 @@ router_v1.register('genres', GenreViewSet, basename='genres')
 router_v1.register('titles', TitlesViewSet, basename='titles')
 
 urlpatterns = [
+    path('v1/users/me/', APIProfile.as_view(), name='profile'),
     path('v1/auth/signup/', APISignup.as_view(), name='signup'),
     path('v1/auth/token/', APIGetToken.as_view(), name='get_token'),
     path('v1/', include(router_v1.urls)),
