@@ -20,8 +20,6 @@ from api.permissions import (
     IsAdminModeratorOwnerOrReadOnly,
     IsAdminOnly,
     IsAdminOrReadOnly,
-    ReadOnlyOrAdminUser,
-    ReadOnly,
 )
 from reviwes.models import Category, Genre, Titles, User
 
@@ -88,9 +86,9 @@ class CategoryViewSet(
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (ReadOnlyOrAdminUser,)
-    # permission_classes = (ReadOnly,)
-    # permission_classes = [ReadOnly or permissions.IsAdminUser]
+    permission_classes = (IsAdminOrReadOnly,)
+    # permission_classes = (IsAdminOnly,)
+    # permission_classes = [IsAdminOnly or permissions.IsAdminUser]
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -104,7 +102,7 @@ class GenreViewSet(mixins.DestroyModelMixin,
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (ReadOnlyOrAdminUser,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
