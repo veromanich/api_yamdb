@@ -66,11 +66,11 @@ class APIGetToken(APIView):
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        confirmation_code = serializer.validated_data['confirmation_code']
+        username = serializer.data['username']
+        confirmation_code = serializer.data['confirmation_code']
         user = get_object_or_404(User, username=username)
         if user.confirmation_code == confirmation_code:
-            token = AccessToken.for_user(user)
+            token = str(AccessToken.for_user(user))
             return Response({'token': token}, status=status.HTTP_200_OK)
         return Response(
             {'confirmation_code': 'Неверный код подтверждения'},
