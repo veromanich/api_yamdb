@@ -1,9 +1,9 @@
-# from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError
 
 
-# def validate_username(value):
-#     if value == 'me':
-#         raise ValidationError(
-#             ('Запрещено использовать "me" в качестве username'),
-#             params={"value": value},
-#         )
+def validate_username(value):
+    if value == 'me':
+        raise ValidationError(
+            ('Запрещено использовать "me" в качестве username'),
+            params={"value": value},
+        )

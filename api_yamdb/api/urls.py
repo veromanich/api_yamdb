@@ -2,11 +2,13 @@ from django.urls import include, path
 from rest_framework import routers
 
 from api.views import (
-    APIGetToken,
-    APISignup,
     CategoryViewSet,
     GenreViewSet,
     TitlesViewSet,
+)
+from users.views import (
+    APIGetToken,
+    APISignup,
     UserViewSet,
 )
 
