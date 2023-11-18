@@ -16,7 +16,13 @@ from api.serializers import (
     TitlesSerializer,
     UserSerializer,
 )
-from api.permissions import ReadOnly, ReadOnlyOrAdminUser
+from api.permissions import (
+    IsAdminModeratorOwnerOrReadOnly,
+    IsAdminOnly,
+    IsAdminOrReadOnly,
+    ReadOnlyOrAdminUser,
+    ReadOnly,
+)
 from reviwes.models import Category, Genre, Titles, User
 
 from django_filters.rest_framework import DjangoFilterBackend
