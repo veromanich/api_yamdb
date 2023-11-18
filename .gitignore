@@ -150,3 +150,6 @@ media/
 
 # папка с письмами
 sent_emails/
+
+# миграции
+api_yamdb/reviwes/migrations/
