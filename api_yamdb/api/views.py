@@ -16,7 +16,7 @@ from api.serializers import (
     TitlesSerializer,
     UserSerializer,
 )
-from api.permissions import ReadOnly
+from api.permissions import ReadOnly, ReadOnlyOrAdminUser
 from reviwes.models import Category, Genre, Titles, User
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -82,6 +82,7 @@ class CategoryViewSet(
 ):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (ReadOnlyOrAdminUser,)
     # permission_classes = (ReadOnly,)
     # permission_classes = [ReadOnly or permissions.IsAdminUser]
     pagination_class = PageNumberPagination
