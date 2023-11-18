@@ -86,7 +86,7 @@ class Genre(models.Model):
         verbose_name='Жанр', max_length=256, blank=False, null=False
     )
     slug = models.SlugField(
-        verbose_name='Идентификатор', unique=True, max_length=256
+        verbose_name='Идентификатор', unique=True, max_length=50
     )
 
     class Meta:
