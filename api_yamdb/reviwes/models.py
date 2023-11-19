@@ -4,6 +4,8 @@ from django.core.validators import (
     MinValueValidator
 )
 
+from users.models import User
+
 
 TEXT_REPRESENTATION_LENGTH = 30
 
