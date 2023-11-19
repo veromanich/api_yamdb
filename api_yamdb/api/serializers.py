@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviwes.models import Category, Genre, Titles
+from reviwes.models import Comment, Category, Genre, Titles, Review
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -23,7 +23,27 @@ class TitlesSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(required=False, many=True)
     #category = serializers.SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
     category = CategorySerializer(required=False, many=False)
-
+    
     class Meta:
         model = Titles
         fields = ('id', 'name', 'year', 'genre', 'category', 'description')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField(
+        read_only=True
+    )
+
+    class Meta:
+        model = Review
+        fields = '__all__'
