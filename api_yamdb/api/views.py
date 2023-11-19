@@ -1,49 +1,49 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import viewssets
 from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 
-from api.serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    TitlesSerializer,
-)
-from api.permissions import (
-    IsAdminModeratorOwnerOrReadOnly,
-    IsAdminOnly,
-    IsAdminOrReadOnly,
-)
-from reviwes.models import Category, Genre, Titles
+
+from api.permissions import ReadOnly
+from api.serializers import (UserSerializer,
+                             CategorySerializer,
+                             CommentSerializer,
+                             GenreSerializer,
+                             TitlesSerializer,
+                             ReviewSerializer)
+from reviwes.models import (User,
+                            Category,
+                            Genre,
+                            Titles,
+
+                            )
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class CategoryViewSet(
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class CategoryViewSet(mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    # permission_classes = (IsAdminOnly,)
-    # permission_classes = [IsAdminOnly or permissions.IsAdminUser]
+    # permission_classes = (ReadOnly,)
+    # permission_classes = [ReadOnly or permissions.IsAdminUser]
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
 
-class GenreViewSet(mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   mixins.CreateModelMixin,
-                   viewsets.GenericViewSet,):
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
