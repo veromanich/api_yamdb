@@ -1,4 +1,3 @@
 # api_yamdb
-api_yamdb
 
-pytest
+let me in pytest pls
