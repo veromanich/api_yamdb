@@ -4,7 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 from api.serializers import (
     CategorySerializer,
     GenreSerializer,
-    TitlesSerializer,
+    TitlesSerializerRead,
+    TitlesSerializerWrite,
 )
 from api.permissions import (
     IsAdminModeratorOwnerOrReadOnly,
@@ -14,6 +15,7 @@ from api.permissions import (
 from reviwes.models import Category, Genre, Titles
 
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 
 
 class CategoryViewSet(
@@ -46,10 +48,28 @@ class GenreViewSet(mixins.DestroyModelMixin,
     lookup_field = 'slug'
 
 
+class TitileFilter(django_filters.FilterSet):
+    cities = django_filters.CharFilter(
+        name='genre__slug',
+        lookup_type='contains', lookup_field='slug'
+    )
+
+    class Meta:
+        model = Titles
+        fields = ('category__slug', 'genre', 'name', 'year', )
+
+
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ('name',)
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    filter_fields = ('category__slug', 'genre', 'name', 'year',)
+    filter_class = TitileFilter
+    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return TitlesSerializerRead
+        else:
+            return TitlesSerializerWrite

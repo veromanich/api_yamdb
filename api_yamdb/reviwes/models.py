@@ -6,7 +6,7 @@ TEXT_REPRESENTATION_LENGTH = 30
 
 class Category(models.Model):
     name = models.CharField(
-        verbose_name='Категория', max_length=200, blank=False, null=False
+        verbose_name='Категория', max_length=200, blank=False, null=True
     )
     slug = models.SlugField(
         verbose_name='Идентификатор', unique=True, max_length=50
