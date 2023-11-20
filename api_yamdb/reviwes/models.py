@@ -12,7 +12,7 @@ TEXT_REPRESENTATION_LENGTH = 30
 
 class Category(models.Model):
     name = models.CharField(
-        verbose_name='Категория', max_length=200, blank=False, null=False
+        verbose_name='Категория', max_length=200, blank=False, null=True
     )
     slug = models.SlugField(
         verbose_name='Идентификатор', unique=True, max_length=50
@@ -44,7 +44,7 @@ class Genre(models.Model):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         verbose_name='Произведение',
         max_length=256,
@@ -73,7 +73,7 @@ class Titles(models.Model):
 
 
 class GenreTitle(models.Model):
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     class Meta:
@@ -99,7 +99,7 @@ class Review(models.Model):
         verbose_name='Дата публикации',
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='произведение',

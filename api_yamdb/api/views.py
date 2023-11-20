@@ -7,16 +7,21 @@ from api.serializers import (
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
-    TitlesSerializer,
+    TitlesSerializerRead,
+    TitlesSerializerWrite,
 )
 from api.permissions import (
     IsAdminModeratorOwnerOrReadOnly,
     IsAdminOnly,
     IsAdminOrReadOnly,
 )
-from reviwes.models import Category, Genre, Titles
+from reviwes.models import Category, Genre, Title
 
 from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
+from rest_framework.decorators import api_view
+
+from api.filters import TitileFilter
 
 
 class CategoryViewSet(
@@ -28,8 +33,6 @@ class CategoryViewSet(
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
-    # permission_classes = (IsAdminOnly,)
-    # permission_classes = [IsAdminOnly or permissions.IsAdminUser]
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -49,20 +52,26 @@ class GenreViewSet(mixins.DestroyModelMixin,
     lookup_field = 'slug'
 
 
-class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
-    serializer_class = TitlesSerializer
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
     pagination_class = PageNumberPagination
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    search_fields = ('name',)
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitileFilter
+    permission_classes = (IsAdminOrReadOnly,)
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return TitlesSerializerRead
+        else:
+            return TitlesSerializerWrite
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     def get_title(self):
         title_id = self.kwargs.get('title_id')
-        return get_object_or_404(Titles, pk=title_id)
+        return get_object_or_404(Title, pk=title_id)
 
     def get_queryset(self):
         return self.get_title().reviews.all()
