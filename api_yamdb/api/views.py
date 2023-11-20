@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, viewsets
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.response import Response
 
 from api.serializers import (
     CategorySerializer,
@@ -14,7 +15,7 @@ from api.permissions import (
     IsAdminOnly,
     IsAdminOrReadOnly,
 )
-from reviwes.models import Category, Genre, Titles
+from reviwes.models import Category, Genre, Review, Titles
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -58,14 +59,32 @@ class TitlesViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category__slug', 'genre__slug', 'name', 'year')
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    def get_title(self):
-        title_id = self.kwargs.get('title_id')
-        return get_object_or_404(Titles, pk=title_id)
+class CommentViewSet(viewsets.ModelViewSet):
+    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    serializer_class = CommentSerializer
 
     def get_queryset(self):
-        return self.get_title().reviews.all()
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        return review.comments.all()
 
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(author=self.request.user, review=review)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    serializer_class = ReviewSerializer
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        serializer.save(author=self.request.user, title_id=title_id)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        review_queryset = Review.objects.filter(title=title_id)
+        return review_queryset

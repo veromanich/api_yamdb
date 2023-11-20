@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator
@@ -62,7 +63,7 @@ class Titles(models.Model):
                                    through='GenreTitle',
                                    related_name='titles')
     description = models.TextField()
-
+    average_rating = models.IntegerField(default=None, null=True)
     class Meta:
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
@@ -135,14 +136,18 @@ class Review(models.Model):
         reviews = title.reviews.all()
         if reviews:
             sum_of_scores = sum(review.score for review in reviews)
-            new_average_rating = sum_of_scores / len(reviews)
+            new_average_rating = round(sum_of_scores / len(reviews))
         else:
             new_average_rating = None
 
         if title.average_rating != new_average_rating:
             title.average_rating = new_average_rating
             title.save(update_fields=['average_rating'])
-            
+
+
+    @property
+    def owner(self):
+        return self.author
 
 class Comment(models.Model):
     text = models.TextField(
