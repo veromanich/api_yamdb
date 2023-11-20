@@ -1,9 +1,12 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from api.serializers import (
     CategorySerializer,
+    CommentSerializer,
     GenreSerializer,
+    ReviewSerializer,
     TitlesSerializerRead,
     TitlesSerializerWrite,
 )
@@ -73,3 +76,16 @@ class TitlesViewSet(viewsets.ModelViewSet):
             return TitlesSerializerRead
         else:
             return TitlesSerializerWrite
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    def get_title(self):
+        title_id = self.kwargs.get('title_id')
+        return get_object_or_404(Titles, pk=title_id)
+
+    def get_queryset(self):
+        return self.get_title().reviews.all()
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
