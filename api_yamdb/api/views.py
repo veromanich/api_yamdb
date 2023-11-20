@@ -1,7 +1,11 @@
 from django.shortcuts import get_object_or_404
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 
+from api.filters import TitileFilter
 from api.serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -16,12 +20,6 @@ from api.permissions import (
     IsAdminOrReadOnly,
 )
 from reviwes.models import Category, Genre, Title
-
-from django_filters.rest_framework import DjangoFilterBackend
-import django_filters
-from rest_framework.decorators import api_view
-
-from api.filters import TitileFilter
 
 
 class CategoryViewSet(
@@ -69,12 +67,14 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+
     def get_title(self):
         title_id = self.kwargs.get('title_id')
         return get_object_or_404(Title, pk=title_id)
 
     def get_queryset(self):
         return self.get_title().reviews.all()
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer

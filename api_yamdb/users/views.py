@@ -14,11 +14,7 @@ from users.serializers import (
     SignupSerializer,
     UserSerializer,
 )
-from api.permissions import (
-    IsAdminModeratorOwnerOrReadOnly,
-    IsAdminOnly,
-    IsAdminOrReadOnly,
-)
+from api.permissions import IsAdminOnly
 from users.models import User
 
 
