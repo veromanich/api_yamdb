@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviwes.models import Comment, Category, Genre, Titles, Review
+from reviwes.models import Comment, Category, Genre, Title, Review
 
 from django.shortcuts import get_object_or_404
 
@@ -9,7 +9,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug',)
-        #read_only_fields = ('slug',)
         lookup_field = 'slug'
 
 
@@ -24,13 +23,13 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('id', 'name', 'year', 'genre', 'category', 'description')
 
 
 class TitlesSerializerRead(TitlesSerializer):
-    category = CategorySerializer(required=False)
-    genre = GenreSerializer(required=False, many=True)
+    category = CategorySerializer(required=False, read_only=True)
+    genre = GenreSerializer(required=False, many=True, read_only=True)
 
 
 class TitlesSerializerWrite(TitlesSerializer):
