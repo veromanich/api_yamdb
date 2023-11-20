@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.db import IntegrityError
 
 from users.models import User
 
@@ -26,16 +28,16 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
-    def validate(self, data):
-        if data['username'] == 'me':
-            raise serializers.ValidationError('username "me" запрещён')
+    def validate_username(self, username):
+        if username == 'me':
+            raise ValidationError('username "me" запрещён')
         regular_expression_validate = RegexValidator(
             regex=r'^[\w.@+-]+\Z',
-            message='В username присутствуют запрещенные символы',
+            message=f"username: '{username}' содержит запрещенные символы",
             code='invalid_username',
         )
-        regular_expression_validate(data['username'])
-        return data
+        regular_expression_validate(username)
+        return username
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
@@ -51,7 +53,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fiels = (
+        fields = (
             'username',
             'email',
             'first_name',
@@ -59,3 +61,4 @@ class ProfileSerializer(serializers.ModelSerializer):
             'bio',
             'role',
         )
+        read_only_fields = ('role',)
