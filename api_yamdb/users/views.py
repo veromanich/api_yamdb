@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, viewsets
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -13,17 +14,28 @@ from users.serializers import (
     SignupSerializer,
     UserSerializer,
 )
-from api.permissions import (
-    IsAdminModeratorOwnerOrReadOnly,
-    IsAdminOnly,
-    IsAdminOrReadOnly,
-)
+from api.permissions import IsAdminOnly
 from users.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAdminOnly,)
+    lookup_field = 'username'
+    filter_backends = (SearchFilter, )
+    search_fields = ('username', )
+
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        username = serializer.validated_data['username']
+        user = User.objects.get(username=username)
+        confirmation_code = default_token_generator.make_token(user)
+        serializer.save(
+            confirmation_code=confirmation_code
+        )
 
 
 class APISignup(APIView):
@@ -39,8 +51,13 @@ class APISignup(APIView):
                 email=email, username=username
             )
         except IntegrityError:
+            incorrect_value = {}
+            if User.objects.filter(username=username):
+                incorrect_value['username'] = ['username уже занят']
+            if User.objects.filter(email=email):
+                incorrect_value['email'] = ['email уже занят']
             return Response(
-                serializer.errors,
+                incorrect_value,
                 status=status.HTTP_400_BAD_REQUEST,
             )
         confirmation_code = default_token_generator.make_token(user)
@@ -61,21 +78,8 @@ class APIGetToken(APIView):
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        username = validated_data.get('username', None)
-        confirmation_code = validated_data.get('confirmation_code', None)
-        # username = serializer.validated_data['username']
-        # confirmation_code = serializer.validated_data['confirmation_code']
-        if not username:
-            return Response(
-                {'username': 'Поле не задано'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if not confirmation_code:
-            return Response(
-                {'confirmation_code': 'Поле не задано'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        username = serializer.validated_data['username']
+        confirmation_code = serializer.validated_data['confirmation_code']
         user = get_object_or_404(User, username=username)
         if user.confirmation_code == confirmation_code:
             token = str(AccessToken.for_user(user))
@@ -87,9 +91,16 @@ class APIGetToken(APIView):
 
 
 class APIProfile(APIView):
-    
-    def get(self, request):
-        pass
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
-        pass
+    def get(self, request):
+        user = request.user
+        serializer = ProfileSerializer(user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        user = request.user
+        serializer = ProfileSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

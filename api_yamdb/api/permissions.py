@@ -25,7 +25,10 @@ class IsAdminOnly(BasePermission):
     """Права Супера и Админа (как ReadOnly)"""
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+        return (
+            request.user.is_authenticated
+            and (request.user.is_admin or request.user.is_superuser)
+        )
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -35,7 +38,7 @@ class IsAdminOrReadOnly(BasePermission):
         return (
             request.method in SAFE_METHODS
             or request.user.is_authenticated
-            and request.user.is_admin
+            and (request.user.is_admin or request.user.is_superuser)
         )
 
 
@@ -51,4 +54,5 @@ class IsAdminModeratorOwnerOrReadOnly(BasePermission):
             or obj.owner == request.user
             or request.user.is_moderator
             or request.user.is_admin
+            or request.user.is_superuser
         )
