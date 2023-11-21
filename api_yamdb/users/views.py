@@ -2,8 +2,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
-from rest_framework.filters import SearchFilter
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -23,19 +23,20 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdminOnly,)
+    pagination_class = PageNumberPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
     lookup_field = 'username'
-    filter_backends = (SearchFilter, )
-    search_fields = ('username', )
 
-    def perform_create(self, serializer):
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        username = serializer.validated_data['username']
-        user = User.objects.get(username=username)
-        confirmation_code = default_token_generator.make_token(user)
-        serializer.save(
-            confirmation_code=confirmation_code
-        )
+    # def perform_create(self, serializer):
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     username = serializer.validated_data['username']
+    #     user = User.objects.get(username=username)
+    #     confirmation_code = default_token_generator.make_token(user)
+    #     serializer.save(
+    #         confirmation_code=confirmation_code
+    #     )
 
 
 class APISignup(APIView):
@@ -96,11 +97,11 @@ class APIProfile(APIView):
     def get(self, request):
         user = request.user
         serializer = ProfileSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
         user = request.user
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
