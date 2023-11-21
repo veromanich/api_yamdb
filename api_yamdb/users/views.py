@@ -28,16 +28,6 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     lookup_field = 'username'
 
-    # def perform_create(self, serializer):
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     username = serializer.validated_data['username']
-    #     user = User.objects.get(username=username)
-    #     confirmation_code = default_token_generator.make_token(user)
-    #     serializer.save(
-    #         confirmation_code=confirmation_code
-    #     )
-
 
 class APISignup(APIView):
     permission_classes = (permissions.AllowAny,)

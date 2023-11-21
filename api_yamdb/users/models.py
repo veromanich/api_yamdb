@@ -26,7 +26,7 @@ class User(AbstractUser):
         validators=[validate_username],
     )
     email = models.EmailField(
-        'Электронная почта', max_length=254, unique=True, null=True
+        'Электронная почта', max_length=254, unique=True, null=False
     )
     first_name = models.CharField('Имя', max_length=150, blank=True)
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
@@ -59,6 +59,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('id',)
 
     def __str__(self):
         return self.username[:TEXT_REPRESENTATION_LENGTH]
