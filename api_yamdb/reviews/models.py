@@ -84,7 +84,7 @@ class GenreTitle(models.Model):
     def __str__(self):
         return f'{self.title} {self.genre}'[:TEXT_REPRESENTATION_LENGTH]
 
-      
+
 class Review(models.Model):
     text = models.TextField(
         verbose_name='текст'
@@ -129,7 +129,7 @@ class Review(models.Model):
 
     def __str__(self):
         return self.text[:TEXT_REPRESENTATION_LENGTH]
-    
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         title = self.title
@@ -147,6 +147,7 @@ class Review(models.Model):
     @property
     def owner(self):
         return self.author
+
 
 class Comment(models.Model):
     text = models.TextField(
@@ -176,7 +177,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text[:TEXT_REPRESENTATION_LENGTH]
-    
+
     @property
     def owner(self):
         return self.author
