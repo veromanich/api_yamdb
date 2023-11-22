@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from django.core.validators import RegexValidator
 
 from users.models import User
+from users.validators import validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -17,6 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
         )
 
+    def validate_username(self, username):
+        return validate_username(username)
+
 
 class SignupSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254, required=True)
@@ -26,16 +29,8 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
-    def validate(self, data):
-        if data['username'] == 'me':
-            raise serializers.ValidationError('username "me" запрещён')
-        regular_expression_validate = RegexValidator(
-            regex=r'^[\w.@+-]+\Z',
-            message='В username присутствуют запрещенные символы',
-            code='invalid_username',
-        )
-        regular_expression_validate(data['username'])
-        return data
+    def validate_username(self, username):
+        return validate_username(username)
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
@@ -51,7 +46,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fiels = (
+        fields = (
             'username',
             'email',
             'first_name',
@@ -59,3 +54,4 @@ class ProfileSerializer(serializers.ModelSerializer):
             'bio',
             'role',
         )
+        read_only_fields = ('role',)

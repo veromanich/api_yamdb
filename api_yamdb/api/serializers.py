@@ -3,8 +3,6 @@ from rest_framework import serializers
 
 from reviwes.models import Comment, Category, Genre, Title, Review
 
-from django.shortcuts import get_object_or_404
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
