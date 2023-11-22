@@ -1,7 +1,6 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from reviwes.models import Comment, Category, Genre, Title, Review
+from reviews.models import Comment, Category, Genre, Title, Review
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -23,7 +22,16 @@ class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'genre', 'category', 'description', 'rating')
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category',
+        )
+        read_only_fields = ('rating',)
 
 
 class TitlesSerializerRead(TitlesSerializer):
@@ -32,8 +40,14 @@ class TitlesSerializerRead(TitlesSerializer):
 
 
 class TitlesSerializerWrite(TitlesSerializer):
-    category = serializers.SlugRelatedField(slug_field='slug', queryset=Category.objects.all())
-    genre = serializers.SlugRelatedField(slug_field='slug', queryset=Genre.objects.all(), many=True)
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all(),
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(), many=True,
+    )
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -58,8 +72,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if self.context.get('request').method != 'POST':
             return data
-        title_id= self.context.get('view').kwargs.get('title_id')
-        author= self.context.get('request').user
+        title_id = self.context.get('view').kwargs.get('title_id')
+        author = self.context.get('request').user
         if Review.objects.filter(author=author, title=title_id).exists():
             raise serializers.ValidationError('Вы уже оставили отзыв!!!')
         return data

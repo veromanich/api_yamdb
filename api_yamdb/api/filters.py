@@ -1,6 +1,6 @@
 from django_filters.rest_framework import CharFilter, FilterSet
 
-from reviwes.models import Title
+from reviews.models import Title
 
 
 class TitileFilter(FilterSet):
