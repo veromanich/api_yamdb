@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from rest_framework import serializers
 
-from reviews.models import Comment, Category, Genre, Title, Review
-from datetime import datetime
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -53,7 +54,8 @@ class TitlesSerializerWrite(TitlesSerializer):
 
     def validate_year(self, value):
         if value > datetime.now().year:
-            raise serializers.ValidationError('Год не должен быть больше текущего')
+            raise serializers.ValidationError(
+                'Год не должен быть больше текущего')
         return value
 
 
