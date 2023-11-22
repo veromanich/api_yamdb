@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class ReviwesConfig(AppConfig):
+class ReviewsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'reviwes'
+    name = 'reviews'
     verbose_name = 'Обзоры'

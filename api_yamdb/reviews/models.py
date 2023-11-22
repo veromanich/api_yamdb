@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Avg
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator
@@ -64,6 +63,7 @@ class Title(models.Model):
                                    related_name='titles')
     description = models.TextField()
     rating = models.IntegerField(default=None, null=True)
+
     class Meta:
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
