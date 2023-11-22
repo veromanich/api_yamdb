@@ -63,7 +63,7 @@ class Title(models.Model):
                                    through='GenreTitle',
                                    related_name='titles')
     description = models.TextField()
-    average_rating = models.IntegerField(default=None, null=True)
+    rating = models.IntegerField(default=None, null=True)
     class Meta:
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
@@ -140,10 +140,9 @@ class Review(models.Model):
         else:
             new_average_rating = None
 
-        if title.average_rating != new_average_rating:
-            title.average_rating = new_average_rating
-            title.save(update_fields=['average_rating'])
-
+        if title.rating != new_average_rating:
+            title.rating = new_average_rating
+            title.save(update_fields=['rating'])
 
     @property
     def owner(self):
@@ -178,3 +177,6 @@ class Comment(models.Model):
     def __str__(self):
         return self.text[:TEXT_REPRESENTATION_LENGTH]
     
+    @property
+    def owner(self):
+        return self.author
