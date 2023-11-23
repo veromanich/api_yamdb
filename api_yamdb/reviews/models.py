@@ -1,11 +1,7 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator
-)
 
 from users.models import User
-
 
 TEXT_REPRESENTATION_LENGTH = 30
 
