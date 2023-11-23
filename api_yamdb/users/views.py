@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,11 +11,11 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from users.serializers import (
     GetTokenSerializer,
-    ProfileSerializer,
     SignupSerializer,
     UserSerializer,
 )
 from api.permissions import IsAdminOnly
+from api_yamdb.settings import PROJECT_EMAIL
 from users.models import User
 
 
@@ -27,6 +28,22 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
+
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=(permissions.IsAuthenticated,),
+        url_path='me',
+    )
+    def profile(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        if request.method == 'GET':
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=user.role)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class APISignup(APIView):
@@ -52,12 +69,10 @@ class APISignup(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         confirmation_code = default_token_generator.make_token(user)
-        user.confirmation_code = confirmation_code
-        user.save()
         send_mail(
             subject='YaMDb регистрация',
             message=f'Код подтверждения {confirmation_code}',
-            from_email='yamdb@yandex.ru',
+            from_email=PROJECT_EMAIL,
             recipient_list=[user.email],
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -72,26 +87,10 @@ class APIGetToken(APIView):
         username = serializer.validated_data['username']
         confirmation_code = serializer.validated_data['confirmation_code']
         user = get_object_or_404(User, username=username)
-        if user.confirmation_code == confirmation_code:
+        if default_token_generator.check_token(user, confirmation_code):
             token = str(AccessToken.for_user(user))
             return Response({'token': token}, status=status.HTTP_200_OK)
         return Response(
             {'confirmation_code': 'Неверный код подтверждения'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-
-class APIProfile(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        user = request.user
-        serializer = ProfileSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def patch(self, request):
-        user = request.user
-        serializer = ProfileSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -83,7 +83,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsAdminModeratorOwnerOrReadOnly,
+    )
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
@@ -100,7 +103,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsAdminModeratorOwnerOrReadOnly,
+    )
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
