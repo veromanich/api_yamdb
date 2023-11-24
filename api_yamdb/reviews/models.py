@@ -6,18 +6,30 @@ from users.models import User
 TEXT_REPRESENTATION_LENGTH = 30
 
 
+class BaseMeta:
+    ordering = ['id']
+
+
+class BaseAbstractModel(models.Model):
+    class Meta(BaseMeta):
+        abstract = True
+
+    def __str__(self):
+        return str(self)[:TEXT_REPRESENTATION_LENGTH]
+
+
 class Category(models.Model):
     name = models.CharField(
-        verbose_name='Категория', max_length=200, blank=False, null=True
+        verbose_name='Категория', max_length=256, null=True
     )
     slug = models.SlugField(
-        verbose_name='Идентификатор', unique=True, max_length=50
+        verbose_name='Идентификатор', unique=True
     )
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
-        ordering = ['id']
+        ordering = ['name']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
@@ -28,13 +40,13 @@ class Genre(models.Model):
         verbose_name='Жанр', max_length=256, blank=False, null=False
     )
     slug = models.SlugField(
-        verbose_name='Идентификатор', unique=True, max_length=50
+        verbose_name='Идентификатор', unique=True
     )
 
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
-        ordering = ['id']
+        ordering = ['name']
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
@@ -57,8 +69,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre,
                                    through='GenreTitle',
                                    related_name='titles')
-    description = models.TextField()
-    rating = models.IntegerField(default=None, null=True)
+    description = models.TextField(null=True, blank=True,)
 
     class Meta:
         verbose_name = 'произведение'
@@ -81,7 +92,7 @@ class GenreTitle(models.Model):
         return f'{self.title} {self.genre}'[:TEXT_REPRESENTATION_LENGTH]
 
 
-class Review(models.Model):
+class Review(BaseAbstractModel):
     text = models.TextField(
         verbose_name='текст'
     )
@@ -102,7 +113,7 @@ class Review(models.Model):
         verbose_name='произведение',
         null=True
     )
-    score = models.PositiveIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Oценка',
         validators=[
             MinValueValidator(
@@ -115,37 +126,19 @@ class Review(models.Model):
             ),
         ]
     )
-    rating = models.IntegerField(default=None, null=True)
 
-    class Meta:
+    class Meta(BaseMeta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
         unique_together = ['author', 'title']
-
-    def __str__(self):
-        return self.text[:TEXT_REPRESENTATION_LENGTH]
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        title = self.title
-        reviews = title.reviews.all()
-        if reviews:
-            sum_of_scores = sum(review.score for review in reviews)
-            new_average_rating = round(sum_of_scores / len(reviews))
-        else:
-            new_average_rating = None
-
-        if title.rating != new_average_rating:
-            title.rating = new_average_rating
-            title.save(update_fields=['rating'])
 
     @property
     def owner(self):
         return self.author
 
 
-class Comment(models.Model):
+class Comment(BaseAbstractModel):
     text = models.TextField(
         verbose_name='текст'
     )
@@ -166,13 +159,10 @@ class Comment(models.Model):
         verbose_name='oтзыв',
     )
 
-    class Meta:
+    class Meta(BaseMeta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('-pub_date',)
-
-    def __str__(self):
-        return self.text[:TEXT_REPRESENTATION_LENGTH]
 
     @property
     def owner(self):
