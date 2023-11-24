@@ -3,34 +3,9 @@ from datetime import date
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from users.models import User
+from core.models import BaseDictModel, BaseTextPublishModel
 
 from api_yamdb.settings import TEXT_REPRESENTATION_LENGTH
-
-
-class BaseMeta:
-    ordering = ['id']
-
-
-class BaseAbstractModel(models.Model):
-    class Meta(BaseMeta):
-        abstract = True
-
-    def __str__(self):
-        return str(self)[:TEXT_REPRESENTATION_LENGTH]
-
-
-class BaseDictModel(models.Model):
-    slug = models.SlugField(
-        verbose_name='Идентификатор', unique=True
-    )
-
-    class Meta:
-        abstract = True
-        ordering = ['name']
-
-    def __str__(self):
-        return str(self.name)[:TEXT_REPRESENTATION_LENGTH]
 
 
 class Category(BaseDictModel):
@@ -102,20 +77,7 @@ class GenreTitle(models.Model):
         return f'{self.title} {self.genre}'[:TEXT_REPRESENTATION_LENGTH]
 
 
-class Review(BaseAbstractModel):
-    text = models.TextField(
-        verbose_name='текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name='Aвтор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-    )
+class Review(BaseTextPublishModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -137,43 +99,21 @@ class Review(BaseAbstractModel):
         ]
     )
 
-    class Meta(BaseMeta):
+    class Meta(BaseTextPublishModel.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ('-pub_date',)
         unique_together = ['author', 'title']
-
-    @property
-    def owner(self):
-        return self.author
+        default_related_name = 'reviews'
 
 
-class Comment(BaseAbstractModel):
-    text = models.TextField(
-        verbose_name='текст'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Aвтор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата публикации',
-    )
+class Comment(BaseTextPublishModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='oтзыв',
     )
 
-    class Meta(BaseMeta):
+    class Meta(BaseTextPublishModel.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ('-pub_date',)
-
-    @property
-    def owner(self):
-        return self.author
+        default_related_name = 'comments'
