@@ -10,8 +10,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+TEXT_REPRESENTATION_LENGTH = 30
 EMAIL_MAX_LENGTH = 254
 USERNAME_MAX_LENGTH = 150
+NAME_MAX_LENGTH = 256
 PROJECT_EMAIL = 'yamdb@yandex.ru'
 
 INSTALLED_APPS = [
@@ -121,5 +123,3 @@ AUTH_USER_MODEL = 'users.User'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
-
-TEXT_REPRESENTATION_LENGTH = 30
