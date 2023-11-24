@@ -11,37 +11,20 @@ from api.filters import TitileFilter
 from api.permissions import IsAdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
-                             TitlesSerializer, TitlesSerializerRead, 
+                             TitlesSerializerRead, 
                              TitlesSerializerWrite)
+from api.mixins import CreateListDestroySearchMixin
 from reviews.models import Category, Genre, Review, Title
 
 
-class CategoryViewSet(
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
+class CategoryViewSet(CreateListDestroySearchMixin,):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    pagination_class = PageNumberPagination
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
-class GenreViewSet(mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   mixins.CreateModelMixin,
-                   viewsets.GenericViewSet,):
+class GenreViewSet(CreateListDestroySearchMixin,):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -50,31 +33,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitileFilter
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
-
-    def create(self, request, *args, **kwargs):
-        write_serializer = TitlesSerializerWrite(data=request.data)
-        write_serializer.is_valid(raise_exception=True)
-        obj = write_serializer.save()
-        headers = self.get_success_headers(write_serializer.data)
-        read_serializer = TitlesSerializerRead(obj)
-        return Response(read_serializer.data,
-                        status=status.HTTP_201_CREATED,
-                        headers=headers)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        write_serializer = TitlesSerializerWrite(instance,
-                                                 data=request.data,
-                                                 partial=partial)
-        write_serializer.is_valid(raise_exception=True)
-        obj = obj = write_serializer.save()
-        read_serializer = TitlesSerializerRead(obj)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            instance._prefetched_objects_cache = {}
-
-        return Response(read_serializer.data)
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
