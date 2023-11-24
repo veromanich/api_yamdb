@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.response import Response
@@ -9,7 +11,8 @@ from api.filters import TitileFilter
 from api.permissions import IsAdminModeratorOwnerOrReadOnly, IsAdminOrReadOnly
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewSerializer,
-                             TitlesSerializerRead, TitlesSerializerWrite)
+                             TitlesSerializer, TitlesSerializerRead, 
+                             TitlesSerializerWrite)
 from reviews.models import Category, Genre, Review, Title
 
 
@@ -42,7 +45,6 @@ class GenreViewSet(mixins.DestroyModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitileFilter
@@ -80,6 +82,10 @@ class TitleViewSet(viewsets.ModelViewSet):
         else:
             return TitlesSerializerWrite
 
+    def get_queryset(self):
+        queryset = Title.objects.annotate(avg_rating=Avg('reviews__score'))
+        return queryset.order_by('id')
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
@@ -90,14 +96,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
-    def get_queryset(self):
+    def get_title(self):
         title_id = self.kwargs.get('title_id')
-        review_queryset = Review.objects.filter(title=title_id)
-        return review_queryset
+        return get_object_or_404(Title, pk=title_id)
+
+    def get_queryset(self):
+        title = self.get_title()
+        return Review.objects.filter(title=title)
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
+        title = self.get_title()
         serializer.save(author=self.request.user, title=title)
 
 
@@ -110,12 +118,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
-    def get_queryset(self):
+    def get_review(self):
         review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
+        return get_object_or_404(Review, id=review_id)
+
+    def get_queryset(self):
+        review = self.get_review()
         return review.comments.all()
 
     def perform_create(self, serializer):
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
+        review = self.get_review()
         serializer.save(author=self.request.user, review=review)
