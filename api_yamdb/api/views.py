@@ -34,8 +34,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
             return TitlesSerializerRead
-        else:
-            return TitlesSerializerWrite
+        return TitlesSerializerWrite
 
     def get_queryset(self):
         queryset = Title.objects.annotate(avg_rating=Avg('reviews__score'))

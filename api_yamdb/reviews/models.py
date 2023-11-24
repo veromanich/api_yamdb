@@ -3,14 +3,20 @@ from datetime import date
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from api_yamdb.settings import NAME_MAX_LENGTH
 from core.models import BaseDictModel, BaseTextPublishModel
+from users.models import User
+
+
+TEXT_REPRESENTATION_LENGTH = 30
+
 
 from api_yamdb.settings import TEXT_REPRESENTATION_LENGTH
 
 
 class Category(BaseDictModel):
     name = models.CharField(
-        verbose_name='Категория', max_length=256, null=True
+        verbose_name='Категория', max_length=NAME_MAX_LENGTH, null=True
     )
 
     class Meta(BaseDictModel.Meta):
@@ -31,7 +37,7 @@ class Genre(BaseDictModel):
 class Title(models.Model):
     name = models.CharField(
         verbose_name='Произведение',
-        max_length=256,
+        max_length=NAME_MAX_LENGTH,
         unique=True,
         blank=False,
         null=False,
@@ -63,6 +69,9 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name[:TEXT_REPRESENTATION_LENGTH]
+
+    def get_genre(self):
+        return ",".join([str(p) for p in self.genre.all()])
 
 
 class GenreTitle(models.Model):
