@@ -2,12 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from api_yamdb.settings import (
-    EMAIL_MAX_LENGTH, USERNAME_MAX_LENGTH
+    EMAIL_MAX_LENGTH, TEXT_REPRESENTATION_LENGTH, USERNAME_MAX_LENGTH
 )
 from users.validators import validate_username
-
-
-TEXT_REPRESENTATION_LENGTH = 30
 
 
 class User(AbstractUser):

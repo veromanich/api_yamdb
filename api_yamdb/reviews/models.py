@@ -3,15 +3,8 @@ from datetime import date
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import NAME_MAX_LENGTH
+from api_yamdb.settings import NAME_MAX_LENGTH, TEXT_REPRESENTATION_LENGTH
 from core.models import BaseDictModel, BaseTextPublishModel
-from users.models import User
-
-
-TEXT_REPRESENTATION_LENGTH = 30
-
-
-from api_yamdb.settings import TEXT_REPRESENTATION_LENGTH
 
 
 class Category(BaseDictModel):
