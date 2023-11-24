@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Comment, Category, Genre, Title, Review
@@ -35,12 +34,27 @@ class TitlesSerializerRead(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'genre', 'category', 'description', 'rating')
+        fields = (
+            'id',
+            'name',
+            'year',
+            'genre',
+            'category',
+            'description',
+            'rating'
+        )
 
 
 class TitlesSerializerWrite(TitlesSerializerRead):
-    category = SlugRelatedFieldDisplayObject(slug_field='slug', queryset=Category.objects.all())
-    genre = SlugRelatedFieldDisplayObject(slug_field='slug', queryset=Genre.objects.all(), many=True)
+    category = SlugRelatedFieldDisplayObject(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    genre = SlugRelatedFieldDisplayObject(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -69,7 +83,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
-        existing_review = Review.objects.filter(author=author, title_id=title_id).exists()
+        existing_review = Review.objects.filter(
+            author=author,
+            title_id=title_id
+        ).exists()
         if existing_review and self.context.get('request').method == 'POST':
             raise serializers.ValidationError('Вы уже оставили отзыв!!!')
         return data
