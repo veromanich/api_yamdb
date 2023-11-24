@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Comment, Category, Genre, Title, Review
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class SlugRelatedFieldDisplayObject(serializers.SlugRelatedField):
