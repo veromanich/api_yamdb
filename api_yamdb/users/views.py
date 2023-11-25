@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import IntegrityError
@@ -9,14 +10,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api.permissions import IsAdminOnly
+from users.models import User
 from users.serializers import (
     GetTokenSerializer,
     SignupSerializer,
     UserSerializer,
 )
-from api.permissions import IsAdminOnly
-from api_yamdb.settings import PROJECT_EMAIL
-from users.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -38,11 +38,10 @@ class UserViewSet(viewsets.ModelViewSet):
     def profile(self, request):
         user = request.user
         serializer = UserSerializer(user)
-        if request.method == 'GET':
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(role=user.role)
+        if request.method == 'PATCH':
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -72,7 +71,7 @@ class APISignup(APIView):
         send_mail(
             subject='YaMDb регистрация',
             message=f'Код подтверждения {confirmation_code}',
-            from_email=PROJECT_EMAIL,
+            from_email=settings.PROJECT_EMAIL,
             recipient_list=[user.email],
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
