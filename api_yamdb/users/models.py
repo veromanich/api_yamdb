@@ -1,9 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from api_yamdb.settings import (
-    EMAIL_MAX_LENGTH, TEXT_REPRESENTATION_LENGTH, USERNAME_MAX_LENGTH
-)
 from users.validators import validate_username
 
 
@@ -19,16 +17,14 @@ class User(AbstractUser):
 
     username = models.CharField(
         'Имя пользователя',
-        max_length=USERNAME_MAX_LENGTH,
+        max_length=settings.USERNAME_MAX_LENGTH,
         unique=True,
-        null=False,
         validators=[validate_username],
     )
     email = models.EmailField(
         'Электронная почта',
-        max_length=EMAIL_MAX_LENGTH,
+        max_length=settings.EMAIL_MAX_LENGTH,
         unique=True,
-        null=False,
     )
     bio = models.TextField(
         'Биография',
@@ -48,7 +44,7 @@ class User(AbstractUser):
         ordering = ('username',)
 
     def __str__(self):
-        return self.username[:TEXT_REPRESENTATION_LENGTH]
+        return self.username[:settings.TEXT_REPRESENTATION_LENGTH]
 
     @property
     def is_moderator(self):

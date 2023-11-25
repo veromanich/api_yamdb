@@ -10,12 +10,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-TEXT_REPRESENTATION_LENGTH = 30
-EMAIL_MAX_LENGTH = 254
-USERNAME_MAX_LENGTH = 150
-NAME_MAX_LENGTH = 256
-PROJECT_EMAIL = 'yamdb@yandex.ru'
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,12 +17,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt',
     'users.apps.UsersConfig',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
-    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +117,9 @@ AUTH_USER_MODEL = 'users.User'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+TEXT_REPRESENTATION_LENGTH = 30
+EMAIL_MAX_LENGTH = 254
+USERNAME_MAX_LENGTH = 150
+NAME_MAX_LENGTH = 256
+PROJECT_EMAIL = 'yamdb@yandex.ru'

@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import models
 
-from api_yamdb.settings import TEXT_REPRESENTATION_LENGTH
 from users.models import User
 
 
@@ -14,7 +14,7 @@ class BaseDictModel(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return str(self.name)[:TEXT_REPRESENTATION_LENGTH]
+        return str(self.name)[:settings.TEXT_REPRESENTATION_LENGTH]
 
 
 class BaseTextPublishModel(models.Model):
@@ -36,7 +36,7 @@ class BaseTextPublishModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return str(self)[:TEXT_REPRESENTATION_LENGTH]
+        return str(self)[:settings.TEXT_REPRESENTATION_LENGTH]
 
     @property
     def owner(self):
