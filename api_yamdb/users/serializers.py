@@ -43,7 +43,7 @@ class GetTokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=USERNAME_MAX_LENGTH,
         required=True,
-        )
+    )
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
