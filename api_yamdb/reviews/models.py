@@ -1,10 +1,9 @@
-from datetime import date
-
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from core.models import BaseDictModel, BaseTextPublishModel
+from reviews.validators import validate_year
 
 
 class Category(BaseDictModel):
@@ -37,9 +36,7 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
-        validators=(
-            MaxValueValidator(date.today().year),
-        ),
+        validators=[validate_year],
         db_index=True,
     )
     category = models.ForeignKey(
@@ -107,13 +104,12 @@ class Review(BaseTextPublishModel):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
-
-    constraints = [
-        models.UniqueConstraint(
-            fields=['author', 'title'],
-            name='unique_author_title_review'
-        )
-    ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title_review'
+            )
+        ]
 
 
 class Comment(BaseTextPublishModel):
