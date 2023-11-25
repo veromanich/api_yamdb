@@ -11,7 +11,7 @@ class BaseDictModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return str(self.name)[:TEXT_REPRESENTATION_LENGTH]

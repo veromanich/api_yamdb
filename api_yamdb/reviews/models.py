@@ -104,8 +104,14 @@ class Review(BaseTextPublishModel):
     class Meta(BaseTextPublishModel.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        unique_together = ['author', 'title']
         default_related_name = 'reviews'
+
+    constraints = [
+        models.UniqueConstraint(
+            fields=['author', 'title'],
+            name='unique_author_title_review'
+        )
+    ]
 
 
 class Comment(BaseTextPublishModel):

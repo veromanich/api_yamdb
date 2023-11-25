@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models import Avg
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
@@ -24,8 +25,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializerRead(serializers.ModelSerializer):
-    rating = serializers.IntegerField(
-        source='avg_rating',
+    rating = serializers.SerializerMethodField(
         read_only=True,
         default=None
     )
@@ -43,6 +43,10 @@ class TitlesSerializerRead(serializers.ModelSerializer):
             'description',
             'rating'
         )
+
+    def get_rating(self, obj):
+        avg_rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        return avg_rating
 
 
 class TitlesSerializerWrite(TitlesSerializerRead):
@@ -81,12 +85,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
+        request_method = self.context.get('request').method
         title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
-        existing_review = Review.objects.filter(
-            author=author,
-            title_id=title_id
-        ).exists()
-        if existing_review and self.context.get('request').method == 'POST':
+        if request_method == 'POST' and Review.objects.filter(author=author, title=title_id).exists():
             raise serializers.ValidationError('Вы уже оставили отзыв!!!')
         return data
+
