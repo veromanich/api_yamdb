@@ -19,7 +19,7 @@ class BaseDictModel(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return str(self.name)[:settings.TEXT_REPRESENTATION_LENGTH]
+        return self.name[:settings.TEXT_REPRESENTATION_LENGTH]
 
 
 class BaseTextPublishModel(models.Model):
@@ -41,7 +41,7 @@ class BaseTextPublishModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return str(self)[:settings.TEXT_REPRESENTATION_LENGTH]
+        return self.text[:settings.TEXT_REPRESENTATION_LENGTH]
 
     @property
     def owner(self):
