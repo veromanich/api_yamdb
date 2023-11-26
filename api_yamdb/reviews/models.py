@@ -1,16 +1,12 @@
-from datetime import date
-
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import NAME_MAX_LENGTH, TEXT_REPRESENTATION_LENGTH
 from core.models import BaseDictModel, BaseTextPublishModel
+from reviews.validators import validate_year
 
 
 class Category(BaseDictModel):
-    name = models.CharField(
-        verbose_name='Категория', max_length=NAME_MAX_LENGTH, null=True
-    )
 
     class Meta(BaseDictModel.Meta):
         verbose_name = 'категория'
@@ -18,9 +14,6 @@ class Category(BaseDictModel):
 
 
 class Genre(BaseDictModel):
-    name = models.CharField(
-        verbose_name='Жанр', max_length=256
-    )
 
     class Meta(BaseDictModel.Meta):
         verbose_name = 'жанр'
@@ -30,16 +23,12 @@ class Genre(BaseDictModel):
 class Title(models.Model):
     name = models.CharField(
         verbose_name='Произведение',
-        max_length=NAME_MAX_LENGTH,
+        max_length=settings.NAME_MAX_LENGTH,
         unique=True,
-        blank=False,
-        null=False,
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
-        validators=(
-            MaxValueValidator(date.today().year),
-        ),
+        validators=[validate_year],
         db_index=True,
     )
     category = models.ForeignKey(
@@ -58,10 +47,10 @@ class Title(models.Model):
         default_related_name = 'titles'
         verbose_name = 'произведение'
         verbose_name_plural = 'произведения'
-        ordering = ['-id']
+        ordering = ['year']
 
     def __str__(self):
-        return self.name[:TEXT_REPRESENTATION_LENGTH]
+        return self.name[:settings.TEXT_REPRESENTATION_LENGTH]
 
     def get_genre(self):
         return ",".join([str(p) for p in self.genre.all()])
@@ -76,7 +65,9 @@ class GenreTitle(models.Model):
         verbose_name_plural = 'жанры произведений'
 
     def __str__(self):
-        return f'{self.title} {self.genre}'[:TEXT_REPRESENTATION_LENGTH]
+        return (
+            f'{self.title} {self.genre}'[:settings.TEXT_REPRESENTATION_LENGTH]
+        )
 
 
 class Review(BaseTextPublishModel):
@@ -105,13 +96,12 @@ class Review(BaseTextPublishModel):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
-
-    constraints = [
-        models.UniqueConstraint(
-            fields=['author', 'title'],
-            name='unique_author_title_review'
-        )
-    ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'],
+                name='unique_author_title_review'
+            )
+        ]
 
 
 class Comment(BaseTextPublishModel):
