@@ -1,12 +1,7 @@
-from rest_framework import serializers
 from django.db.models import Avg
+from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
-
-
-class SlugRelatedFieldDisplayObject(serializers.SlugRelatedField):
-    def display_value(self, instance):
-        return instance
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -50,15 +45,22 @@ class TitlesSerializerRead(serializers.ModelSerializer):
 
 
 class TitlesSerializerWrite(TitlesSerializerRead):
-    category = SlugRelatedFieldDisplayObject(
+    category = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    genre = SlugRelatedFieldDisplayObject(
+    genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
         many=True
     )
+
+    def to_representation(self, instance):
+        if isinstance(instance, Title):
+            serializer = TitlesSerializerRead(instance)
+        else:
+            raise Exception('Unexpected object type')
+        return serializer.data
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -88,7 +90,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         request_method = self.context.get('request').method
         title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
-        if request_method == 'POST' and Review.objects.filter(author=author, title=title_id).exists():
+        review = Review.objects.filter(author=author, title=title_id)
+        if request_method == 'POST' and review.exists():
             raise serializers.ValidationError('Вы уже оставили отзыв!!!')
         return data
-
