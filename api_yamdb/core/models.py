@@ -5,6 +5,11 @@ from users.models import User
 
 
 class BaseDictModel(models.Model):
+    name = models.CharField(
+        verbose_name='Наименование',
+        max_length=settings.NAME_MAX_LENGTH,
+        null=True,
+    )
     slug = models.SlugField(
         verbose_name='Идентификатор', unique=True
     )

@@ -7,11 +7,6 @@ from reviews.validators import validate_year
 
 
 class Category(BaseDictModel):
-    name = models.CharField(
-        verbose_name='Категория',
-        max_length=settings.NAME_MAX_LENGTH,
-        null=True,
-    )
 
     class Meta(BaseDictModel.Meta):
         verbose_name = 'категория'
@@ -19,9 +14,6 @@ class Category(BaseDictModel):
 
 
 class Genre(BaseDictModel):
-    name = models.CharField(
-        verbose_name='Жанр', max_length=settings.NAME_MAX_LENGTH
-    )
 
     class Meta(BaseDictModel.Meta):
         verbose_name = 'жанр'
